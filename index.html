@@ -8,12 +8,20 @@
     body {
       font-family: Arial, sans-serif;
       text-align: center;
-      background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+      background-image: url('https://i.pinimg.com/originals/04/7f/e7/047fe75f7490efa4693e6a0eef8949cc.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
       margin: 0;
       padding: 0;
+      overflow-x: hidden;
     }
     .container {
       margin-top: 50px;
+      background-color: rgba(255, 255, 255, 0.7);
+      padding: 20px;
+      border-radius: 10px;
+      display: inline-block;
     }
     .timer {
       font-size: 48px;
@@ -36,6 +44,34 @@
     button:hover {
       background-color: #45a049;
     }
+    .animation {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 48px;
+      display: none;
+      z-index: 10;
+    }
+    .dance {
+      animation: dance 1s infinite alternate;
+    }
+    @keyframes dance {
+      0% { transform: translate(-50%, -50%) rotate(-5deg); }
+      100% { transform: translate(-50%, -50%) rotate(5deg); }
+    }
+    .firework {
+      position: absolute;
+      width: 5px;
+      height: 5px;
+      background: gold;
+      border-radius: 50%;
+      animation: firework 2s linear forwards;
+    }
+    @keyframes firework {
+      0% { transform: translateY(0); opacity: 1; }
+      100% { transform: translateY(-300px); opacity: 0; }
+    }
   </style>
 </head>
 <body>
@@ -49,12 +85,19 @@
     <button onclick="resetTimer()">Reset</button>
   </div>
 
+  <div id="animation" class="animation"></div>
+
+  <!-- Səslər -->
+  <audio id="popSound" src="https://www.soundjay.com/button/button-3.mp3"></audio>
+  <audio id="partySound" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
+
   <script>
     let timerInterval;
     let totalSeconds = 0;
     let running = false;
     let balance = 0;
-    let totalBalance = 0;
+    let totalBalance = parseFloat(localStorage.getItem('totalBalance')) || 0;
+    let today = new Date().toDateString();
 
     const balancePerSecond = 10 / (4 * 3600); // 4 saat = 14400 saniyə
 
@@ -72,14 +115,56 @@
         'Ümumi Balans: ' + totalBalance.toFixed(2) + ' AZN';
     }
 
+    function showAnimation(text, isDance = false) {
+      const anim = document.getElementById('animation');
+      anim.innerHTML = text;
+      anim.style.display = 'block';
+      if (isDance) anim.classList.add('dance');
+      else anim.classList.remove('dance');
+      setTimeout(() => {
+        anim.style.display = 'none';
+      }, 4000);
+    }
+
+    function createFirework() {
+      const firework = document.createElement('div');
+      firework.classList.add('firework');
+      firework.style.left = Math.random() * window.innerWidth + 'px';
+      firework.style.top = Math.random() * window.innerHeight + 'px';
+      document.body.appendChild(firework);
+      setTimeout(() => document.body.removeChild(firework), 2000);
+    }
+
     function startTimer() {
       if (!running) {
         running = true;
         timerInterval = setInterval(() => {
+          const now = new Date().toDateString();
+          if (now !== today) {
+            // Yeni gün başladı
+            today = now;
+            balance = 0;
+            totalBalance = 0;
+          }
           totalSeconds++;
           balance += balancePerSecond;
           totalBalance += balancePerSecond;
+          localStorage.setItem('totalBalance', totalBalance.toFixed(2));
           updateDisplay();
+
+          if (totalSeconds % 3600 === 0) {
+            document.getElementById('popSound').play();
+            showAnimation('💣 Pop! Bomba partladı!', true);
+          }
+
+          if (totalSeconds === 14400) {
+            document.getElementById('partySound').play();
+            showAnimation('🎆 Fişəng Partlayışı!', true);
+            for (let i = 0; i < 30; i++) {
+              setTimeout(createFirework, i * 100);
+            }
+          }
+
         }, 1000);
       }
     }
