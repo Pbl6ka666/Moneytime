@@ -3,138 +3,216 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>MoneyTime App</title>
+    <title>Money Time App</title>
+    <link rel="icon" href="https://raw.githubusercontent.com/Pbl6ka666/Moneytime/refs/heads/main/IMG_0417.jpeg" type="image/jpeg">
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" href="https://raw.githubusercontent.com/Pbl6ka666/Moneytime/refs/heads/main/IMG_0417.jpeg" sizes="192x192">
     <style>
-        body {
+        body, html {
+            height: 100%;
+            margin: 0;
             font-family: Arial, sans-serif;
-            text-align: center;
-            background-image: url('https://raw.githubusercontent.com/Pbl6ka666/Moneytime/refs/heads/main/IMG_0417.jpeg');
-            background-size: cover;
-            background-repeat: no-repeat;
-            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            flex-direction: column;
+            background-color: #f5f5f5;
+            overflow: hidden;
+        }
+
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
             color: white;
+            font-size: 2rem;
+            flex-direction: column;
+            text-align: center;
         }
-        #loading {
-            font-size: 24px;
+
+        #loading-screen p {
+            margin: 20px 0;
+        }
+
+        #loading-screen .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #fff;
+            border-top: 5px solid #4caf50;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #loading-screen .loading-text {
+            color: #4caf50; /* Change the text color to green */
+        }
+
+        #app {
+            display: none;
+            text-align: center;
+        }
+
+        .button {
+            padding: 10px 20px;
             margin: 10px;
-            font-weight: bold;
-        }
-        #progress {
-            width: 100%;
-            height: 20px;
-            background-color: #ccc;
-        }
-        #progress-bar {
-            height: 100%;
-            background-color: #4caf50;
-            width: 0;
-        }
-        #buttons {
-            margin-top: 30px;
-        }
-        button {
+            font-size: 16px;
+            cursor: pointer;
             background-color: #4caf50;
             color: white;
             border: none;
-            padding: 15px 32px;
-            font-size: 16px;
-            cursor: pointer;
-            margin: 5px;
+            border-radius: 5px;
         }
-        #balance {
+
+        .button:disabled {
+            background-color: grey;
+            cursor: not-allowed;
+        }
+
+        .timer {
+            font-size: 3rem;
             margin-top: 20px;
-            font-size: 20px;
         }
-        #success {
-            font-size: 28px;
-            margin-top: 30px;
-            color: #ff6347;
+
+        .balance {
+            font-size: 2rem;
+            margin-top: 20px;
+        }
+
+        #explosion {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            visibility: hidden;
+            font-size: 2rem;
+            color: #ff5733;
+            animation: explode 1s forwards;
+        }
+
+        @keyframes explode {
+            0% { opacity: 0; transform: scale(1); }
+            100% { opacity: 1; transform: scale(3); }
         }
     </style>
 </head>
 <body>
-    <div id="loading">
-        Every second counts towards success.
-    </div>
-    <div id="progress">
-        <div id="progress-bar"></div>
-    </div>
-
-    <div id="buttons" style="display:none;">
-        <button id="startStopBtn" onclick="toggleTimer()">Start</button>
-        <button id="resetBtn" onclick="resetTimer()">Reset</button>
-        <div id="balance">Balance: 0 AZN</div>
+    <div id="loading-screen">
+        <div class="spinner"></div>
+        <p class="loading-text" id="loading-text">Every second counts towards success</p>
+        <p>Loading...</p>
     </div>
 
-    <div id="success" style="display:none;">
-        <p>Well done! You've completed your time goal!</p>
+    <div id="app">
+        <h1>Money Time</h1>
+        <div class="timer" id="timer">00:00</div>
+        <div class="balance" id="balance">Balance: 0 AZN</div>
+
+        <div id="explosion">Boom! 🎉</div>
+
+        <button class="button" id="start-btn">Start</button>
+        <button class="button" id="pause-btn" disabled>Pause</button>
+        <button class="button" id="reset-btn" disabled>Reset</button>
+        <button class="button" id="settings-btn">Settings</button>
     </div>
 
     <script>
-        let seconds = 0;
-        let timerInterval;
-        let totalBalance = 0;
-        let isTimerRunning = false;
+        let timerInterval, currentTime = 0, balance = 0, totalTime = 4 * 3600, isRunning = false;
+        const timerElement = document.getElementById('timer');
+        const balanceElement = document.getElementById('balance');
+        const explosionElement = document.getElementById('explosion');
+        const startButton = document.getElementById('start-btn');
+        const pauseButton = document.getElementById('pause-btn');
+        const resetButton = document.getElementById('reset-btn');
+        const settingsButton = document.getElementById('settings-btn');
+        const loadingScreen = document.getElementById('loading-screen');
+        const app = document.getElementById('app');
+        const loadingText = document.getElementById('loading-text');
+        
+        // Show loading screen for 5 seconds
+        setTimeout(() => {
+            loadingScreen.style.display = 'none';
+            app.style.display = 'block';
+        }, 5000);
 
-        function updateProgress() {
-            let progressBar = document.getElementById('progress-bar');
-            progressBar.style.width = (seconds / 14400) * 100 + '%'; // 4 hours = 14400 seconds
-
-            // Update the balance every second
-            totalBalance = (seconds / 3600) * 10; // 10 AZN every hour
-            document.getElementById('balance').innerText = `Balance: ${totalBalance.toFixed(2)} AZN`;
+        function formatTime(seconds) {
+            let hours = Math.floor(seconds / 3600);
+            let minutes = Math.floor((seconds % 3600) / 60);
+            let sec = seconds % 60;
+            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
         }
 
-        function toggleTimer() {
-            if (isTimerRunning) {
-                clearInterval(timerInterval);
-                document.getElementById('startStopBtn').innerText = "Start";
-            } else {
-                timerInterval = setInterval(function() {
-                    seconds++;
-                    updateProgress();
+        function updateBalance() {
+            balance = (currentTime / totalTime) * 10;
+            balanceElement.textContent = `Balance: ${balance.toFixed(2)} AZN`;
+        }
 
-                    if (seconds % 3600 === 0) { // Every hour
-                        alert("Hour passed! Time to celebrate!");
-                    }
+        function handleTimer() {
+            if (isRunning) {
+                currentTime++;
+                if (currentTime <= totalTime) {
+                    timerElement.textContent = formatTime(currentTime);
+                    updateBalance();
 
-                    if (seconds >= 14400) { // 4 hours
-                        alert("You reached your 4-hour goal! Time to celebrate!");
-                        clearInterval(timerInterval);
+                    // Trigger explosion at 1 hour and 4 hours
+                    if (currentTime === 3600) {
+                        explosionElement.style.visibility = 'visible';
+                        setTimeout(() => explosionElement.style.visibility = 'hidden', 1000);
                     }
-                }, 1000);
-                document.getElementById('startStopBtn').innerText = "Pause";
+                    if (currentTime === 14400) {
+                        explosionElement.textContent = 'Big Boom! 🎆';
+                        explosionElement.style.visibility = 'visible';
+                        setTimeout(() => explosionElement.style.visibility = 'hidden', 2000);
+                    }
+                } else {
+                    clearInterval(timerInterval);
+                    isRunning = false;
+                    startButton.disabled = false;
+                    pauseButton.disabled = true;
+                    resetButton.disabled = false;
+                    alert('Timer finished! Your balance: ' + balance.toFixed(2) + ' AZN');
+                }
             }
-
-            isTimerRunning = !isTimerRunning;
         }
 
-        function resetTimer() {
+        startButton.addEventListener('click', () => {
+            if (!isRunning) {
+                timerInterval = setInterval(handleTimer, 1000);
+                isRunning = true;
+                startButton.disabled = true;
+                pauseButton.disabled = false;
+            }
+        });
+
+        pauseButton.addEventListener('click', () => {
             clearInterval(timerInterval);
-            seconds = 0;
-            updateProgress();
-            document.getElementById('startStopBtn').innerText = "Start";
-            isTimerRunning = false;
-        }
+            isRunning = false;
+            startButton.disabled = false;
+            pauseButton.disabled = true;
+        });
 
-        // Loading effect
-        let loadingTime = 0;
-        let loadingInterval = setInterval(function() {
-            loadingTime++;
-            document.getElementById('progress-bar').style.width = loadingTime + '%';
-            if (loadingTime >= 100) {
-                clearInterval(loadingInterval);
-                document.getElementById('loading').style.display = "none";
-                document.getElementById('buttons').style.display = "block";
-            }
-        }, 50);
+        resetButton.addEventListener('click', () => {
+            clearInterval(timerInterval);
+            currentTime = 0;
+            balance = 0;
+            timerElement.textContent = '00:00';
+            balanceElement.textContent = 'Balance: 0 AZN';
+            startButton.disabled = false;
+            pauseButton.disabled = true;
+            resetButton.disabled = true;
+        });
+
+        settingsButton.addEventListener('click', () => {
+            alert("Settings feature will be added later!");
+        });
 
     </script>
 </body>
