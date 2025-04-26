@@ -2,7 +2,7 @@
   "name": "MoneyTime",
   "short_name": "MoneyTime",
   "description": "Bir timer app",
-  "start_url": "moneytime.html",
+  "start_url": "/Moneytime/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#000000",
