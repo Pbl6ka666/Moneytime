@@ -19,9 +19,9 @@
       font-size: 48px;
       margin: 20px 0;
     }
-    .balance {
+    .balance, .total-balance {
       font-size: 24px;
-      margin: 20px 0;
+      margin: 10px 0;
     }
     button {
       font-size: 18px;
@@ -43,6 +43,7 @@
     <h1>MoneyTime</h1>
     <div class="timer" id="timer">00:00:00</div>
     <div class="balance" id="balance">Balans: 0.00 AZN</div>
+    <div class="total-balance" id="totalBalance">Ümumi Balans: 0.00 AZN</div>
     <button onclick="startTimer()">Başla</button>
     <button onclick="pauseTimer()">Pauza</button>
     <button onclick="resetTimer()">Reset</button>
@@ -53,6 +54,7 @@
     let totalSeconds = 0;
     let running = false;
     let balance = 0;
+    let totalBalance = 0;
 
     const balancePerSecond = 10 / (4 * 3600); // 4 saat = 14400 saniyə
 
@@ -66,6 +68,8 @@
         String(seconds).padStart(2, '0');
       document.getElementById('balance').textContent =
         'Balans: ' + balance.toFixed(2) + ' AZN';
+      document.getElementById('totalBalance').textContent =
+        'Ümumi Balans: ' + totalBalance.toFixed(2) + ' AZN';
     }
 
     function startTimer() {
@@ -74,6 +78,7 @@
         timerInterval = setInterval(() => {
           totalSeconds++;
           balance += balancePerSecond;
+          totalBalance += balancePerSecond;
           updateDisplay();
         }, 1000);
       }
