@@ -1,78 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Loading Page</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background: linear-gradient(135deg, #ffcc00, #ff6600);
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
-      font-family: 'Arial', sans-serif;
-    }
-
-    .loading-container {
-      text-align: center;
-      color: #ffffff;
-    }
-
-    .spinner {
-      margin: 20px;
-      border: 10px solid rgba(255, 255, 255, 0.1);
-      border-top: 10px solid #ffcc00;
-      border-radius: 50%;
-      width: 80px;
-      height: 80px;
-      animation: spin 1.5s linear infinite;
-    }
-
-    .loading-text {
-      font-size: 24px;
-      font-weight: bold;
-      margin-top: 20px;
-      color: #ffffff;
-    }
-
-    .kitty {
-      width: 80px;
-      height: 80px;
-      background-image: url('https://example.com/kitty.gif'); /* Buraya pişik animasiyasının URL'sini qoyun */
-      background-size: cover;
-      animation: bounce 1s ease-in-out infinite;
-      margin: 20px auto;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    @keyframes bounce {
-      0% { transform: translateY(0); }
-      50% { transform: translateY(-20px); }
-      100% { transform: translateY(0); }
-    }
-
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="5; url=index.html"> <!-- Loading-dən sonra index səhifəsinə keçmək -->
+    <title>Loading</title>
+    <style>
+        body {
+            background-color: #111;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: white;
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+        }
+        .container {
+            animation: fadeIn 5s ease-in-out;
+        }
+        .spinner {
+            font-size: 100px;
+            animation: spin 1.5s linear infinite;
+        }
+        .message {
+            font-size: 24px;
+            color: #00FF00;
+            margin-top: 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+    </style>
 </head>
 <body>
-  <div class="loading-container">
-    <div class="kitty"></div>
-    <div class="spinner"></div>
-    <p class="loading-text">Every second counts towards success...</p>
-  </div>
-
-  <script>
-    // 5 saniyə sonra loading səhifəsindən əsas səhifəyə keçəcək
-    setTimeout(function() {
-      window.location.href = "index.html"; // Burada "index.html" əsas səhifənin adı olmalıdır
-    }, 5000); // 5000 millisekund, yəni 5 saniyə
-  </script>
+    <div class="container">
+        <div class="spinner">🐱</div> <!-- Pişik animasiyası -->
+        <div class="message">Every second counts towards success</div> <!-- Mətn -->
+    </div>
 </body>
 </html>
