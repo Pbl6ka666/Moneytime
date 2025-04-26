@@ -64,25 +64,33 @@
     </div>
 
     <script>
-        let progress = 0;
-        const progressBar = document.getElementById("progressBar");
-        const message = document.querySelector(".message");
+        // Yalnız bir dəfə loading səhifəsini göstərmək üçün
+        if (!sessionStorage.getItem('loadingShown')) {
+            // Set the flag to indicate that the loading screen has been shown
+            sessionStorage.setItem('loadingShown', 'true');
 
-        // 3 saniyəlik loading animasiyası (0-100 arasında dolan bar)
-        const interval = setInterval(function() {
-            progress += 2;
-            progressBar.style.width = progress + '%';
-            progressBar.innerText = progress + '%';
-            message.innerText = 'Loading... ' + progress + '%';
+            let progress = 0;
+            const progressBar = document.getElementById("progressBar");
+            const message = document.querySelector(".message");
 
-            if (progress >= 100) {
-                clearInterval(interval);
-                setTimeout(function() {
-                    window.location.href = 'index.html'; // Bura əsas səhifənizin adını yazın
-                }, 1000); // 1 saniyəlik delay
-            }
-        }, 30); // 30 ms interval ilə hər dəfə 2% artır
+            // 3 saniyəlik loading animasiyası (0-100 arasında dolan bar)
+            const interval = setInterval(function() {
+                progress += 2;
+                progressBar.style.width = progress + '%';
+                progressBar.innerText = progress + '%';
+                message.innerText = 'Loading... ' + progress + '%';
 
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    setTimeout(function() {
+                        window.location.href = 'index.html'; // Bura əsas səhifənizin adını yazın
+                    }, 1000); // 1 saniyəlik delay
+                }
+            }, 30); // 30 ms interval ilə hər dəfə 2% artır
+        } else {
+            // Əgər loading səhifəsi artıq göstərilibsə, direkt olaraq index.html-ə yönləndir
+            window.location.href = 'index.html';
+        }
     </script>
 </body>
 </html>
