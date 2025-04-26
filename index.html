@@ -1,199 +1,141 @@
 <!DOCTYPE html>
-<html lang="az">
+<html lang="en">
 <head>
-    <!-- PWA üçün -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="MoneyTime">
-    <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/Pbl6ka666/Moneytime/refs/heads/main/IMG_0417.jpeg">
-
-    <!-- Manifest faylı -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>MoneyTime App</title>
     <link rel="manifest" href="manifest.json">
-</head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>MoneyTime</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      background-image: url("https://raw.githubusercontent.com/Pbl6ka666/Moneytime/refs/heads/main/IMG_0417.jpeg");
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      margin: 0;
-      padding: 0;
-      overflow-x: hidden;
-    }
-    .container {
-      margin-top: 50px;
-      background-color: rgba(255, 255, 255, 0.7);
-      padding: 20px;
-      border-radius: 10px;
-      display: inline-block;
-    }
-    .timer {
-      font-size: 48px;
-      margin: 20px 0;
-    }
-    .balance, .total-balance {
-      font-size: 24px;
-      margin: 10px 0;
-    }
-    button {
-      font-size: 18px;
-      margin: 5px;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 5px;
-      background-color: #4CAF50;
-      color: white;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #45a049;
-    }
-    .animation {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 48px;
-      display: none;
-      z-index: 10;
-    }
-    .dance {
-      animation: dance 1s infinite alternate;
-    }
-    @keyframes dance {
-      0% { transform: translate(-50%, -50%) rotate(-5deg); }
-      100% { transform: translate(-50%, -50%) rotate(5deg); }
-    }
-    .firework {
-      position: absolute;
-      width: 5px;
-      height: 5px;
-      background: gold;
-      border-radius: 50%;
-      animation: firework 2s linear forwards;
-    }
-    @keyframes firework {
-      0% { transform: translateY(0); opacity: 1; }
-      100% { transform: translateY(-300px); opacity: 0; }
-    }
-  </style>
+    <link rel="icon" href="https://raw.githubusercontent.com/Pbl6ka666/Moneytime/refs/heads/main/IMG_0417.jpeg" sizes="192x192">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-image: url('https://raw.githubusercontent.com/Pbl6ka666/Moneytime/refs/heads/main/IMG_0417.jpeg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+        }
+        #loading {
+            font-size: 24px;
+            margin: 10px;
+            font-weight: bold;
+        }
+        #progress {
+            width: 100%;
+            height: 20px;
+            background-color: #ccc;
+        }
+        #progress-bar {
+            height: 100%;
+            background-color: #4caf50;
+            width: 0;
+        }
+        #buttons {
+            margin-top: 30px;
+        }
+        button {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 15px 32px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        #balance {
+            margin-top: 20px;
+            font-size: 20px;
+        }
+        #success {
+            font-size: 28px;
+            margin-top: 30px;
+            color: #ff6347;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <h1>MoneyTime</h1>
-    <div class="timer" id="timer">00:00:00</div>
-    <div class="balance" id="balance">Balans: 0.00 AZN</div>
-    <div class="total-balance" id="totalBalance">Ümumi Balans: 0.00 AZN</div>
-    <button onclick="startTimer()">Başla</button>
-    <button onclick="pauseTimer()">Pauza</button>
-    <button onclick="resetTimer()">Reset</button>
-  </div>
+    <div id="loading">
+        Every second counts towards success.
+    </div>
+    <div id="progress">
+        <div id="progress-bar"></div>
+    </div>
 
-  <div id="animation" class="animation"></div>
+    <div id="buttons" style="display:none;">
+        <button id="startStopBtn" onclick="toggleTimer()">Start</button>
+        <button id="resetBtn" onclick="resetTimer()">Reset</button>
+        <div id="balance">Balance: 0 AZN</div>
+    </div>
 
-  <!-- Səslər -->
-  <audio id="popSound" src="https://www.soundjay.com/button/button-3.mp3"></audio>
-  <audio id="partySound" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
+    <div id="success" style="display:none;">
+        <p>Well done! You've completed your time goal!</p>
+    </div>
 
-  <script>
-    let timerInterval;
-    let totalSeconds = 0;
-    let running = false;
-    let balance = 0;
-    let totalBalance = parseFloat(localStorage.getItem('totalBalance')) || 0;
-    let today = new Date().toDateString();
+    <script>
+        let seconds = 0;
+        let timerInterval;
+        let totalBalance = 0;
+        let isTimerRunning = false;
 
-    const balancePerSecond = 10 / (4 * 3600); // 4 saat = 14400 saniyə
+        function updateProgress() {
+            let progressBar = document.getElementById('progress-bar');
+            progressBar.style.width = (seconds / 14400) * 100 + '%'; // 4 hours = 14400 seconds
 
-    function updateDisplay() {
-      const hours = Math.floor(totalSeconds / 3600);
-      const minutes = Math.floor((totalSeconds % 3600) / 60);
-      const seconds = totalSeconds % 60;
-      document.getElementById('timer').textContent =
-        String(hours).padStart(2, '0') + ':' +
-        String(minutes).padStart(2, '0') + ':' +
-        String(seconds).padStart(2, '0');
-      document.getElementById('balance').textContent =
-        'Balans: ' + balance.toFixed(2) + ' AZN';
-      document.getElementById('totalBalance').textContent =
-        'Ümumi Balans: ' + totalBalance.toFixed(2) + ' AZN';
-    }
+            // Update the balance every second
+            totalBalance = (seconds / 3600) * 10; // 10 AZN every hour
+            document.getElementById('balance').innerText = `Balance: ${totalBalance.toFixed(2)} AZN`;
+        }
 
-    function showAnimation(text, isDance = false) {
-      const anim = document.getElementById('animation');
-      anim.innerHTML = text;
-      anim.style.display = 'block';
-      if (isDance) anim.classList.add('dance');
-      else anim.classList.remove('dance');
-      setTimeout(() => {
-        anim.style.display = 'none';
-      }, 4000);
-    }
+        function toggleTimer() {
+            if (isTimerRunning) {
+                clearInterval(timerInterval);
+                document.getElementById('startStopBtn').innerText = "Start";
+            } else {
+                timerInterval = setInterval(function() {
+                    seconds++;
+                    updateProgress();
 
-    function createFirework() {
-      const firework = document.createElement('div');
-      firework.classList.add('firework');
-      firework.style.left = Math.random() * window.innerWidth + 'px';
-      firework.style.top = Math.random() * window.innerHeight + 'px';
-      document.body.appendChild(firework);
-      setTimeout(() => document.body.removeChild(firework), 2000);
-    }
+                    if (seconds % 3600 === 0) { // Every hour
+                        alert("Hour passed! Time to celebrate!");
+                    }
 
-    function startTimer() {
-      if (!running) {
-        running = true;
-        timerInterval = setInterval(() => {
-          const now = new Date().toDateString();
-          if (now !== today) {
-            // Yeni gün başladı
-            today = now;
-            balance = 0;
-            totalBalance = 0;
-          }
-          totalSeconds++;
-          balance += balancePerSecond;
-          totalBalance += balancePerSecond;
-          localStorage.setItem('totalBalance', totalBalance.toFixed(2));
-          updateDisplay();
-
-          if (totalSeconds % 3600 === 0) {
-            document.getElementById('popSound').play();
-            showAnimation('💣 Pop! Bomba partladı!', true);
-          }
-
-          if (totalSeconds === 14400) {
-            document.getElementById('partySound').play();
-            showAnimation('🎆 Fişəng Partlayışı!', true);
-            for (let i = 0; i < 30; i++) {
-              setTimeout(createFirework, i * 100);
+                    if (seconds >= 14400) { // 4 hours
+                        alert("You reached your 4-hour goal! Time to celebrate!");
+                        clearInterval(timerInterval);
+                    }
+                }, 1000);
+                document.getElementById('startStopBtn').innerText = "Pause";
             }
-          }
 
-        }, 1000);
-      }
-    }
+            isTimerRunning = !isTimerRunning;
+        }
 
-    function pauseTimer() {
-      if (running) {
-        running = false;
-        clearInterval(timerInterval);
-      }
-    }
+        function resetTimer() {
+            clearInterval(timerInterval);
+            seconds = 0;
+            updateProgress();
+            document.getElementById('startStopBtn').innerText = "Start";
+            isTimerRunning = false;
+        }
 
-    function resetTimer() {
-      running = false;
-      clearInterval(timerInterval);
-      totalSeconds = 0;
-      balance = 0;
-      updateDisplay();
-    }
+        // Loading effect
+        let loadingTime = 0;
+        let loadingInterval = setInterval(function() {
+            loadingTime++;
+            document.getElementById('progress-bar').style.width = loadingTime + '%';
+            if (loadingTime >= 100) {
+                clearInterval(loadingInterval);
+                document.getElementById('loading').style.display = "none";
+                document.getElementById('buttons').style.display = "block";
+            }
+        }, 50);
 
-    updateDisplay();
-  </script>
+    </script>
 </body>
 </html>
