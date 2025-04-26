@@ -1,2 +1,2 @@
 # Moneytime
-Study while gaining money
+Gain money while studying
