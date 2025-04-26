@@ -3,46 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="refresh" content="5; url=index.html"> <!-- Loading-dən sonra index səhifəsinə keçmək -->
     <title>Loading</title>
     <style>
         body {
-            background-color: #111;
+            margin: 0;
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
+            background-image: url('https://raw.githubusercontent.com/Pbl6ka666/Moneytime/refs/heads/main/IMG_0417.jpeg'); /* Pişik şəkli */
+            background-size: cover;
+            background-position: center;
             color: white;
-            font-family: 'Arial', sans-serif;
+            font-family: Arial, sans-serif;
+        }
+
+        .loading-container {
             text-align: center;
+            width: 80%;
+            max-width: 500px;
         }
-        .container {
-            animation: fadeIn 5s ease-in-out;
+
+        .loader {
+            font-size: 50px;
+            color: #4caf50;
+            margin-bottom: 20px;
         }
-        .spinner {
-            font-size: 100px;
-            animation: spin 1.5s linear infinite;
-        }
+
         .message {
-            font-size: 24px;
-            color: #00FF00;
+            font-size: 20px;
+            color: #4caf50;
+        }
+
+        .progress-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 25px;
+            height: 20px;
             margin-top: 20px;
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        @keyframes fadeIn {
-            0% { opacity: 0; }
-            100% { opacity: 1; }
+
+        .progress-bar {
+            height: 100%;
+            width: 0;
+            background-color: #4caf50;
+            border-radius: 25px;
+            text-align: center;
+            color: white;
+            line-height: 20px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="spinner">🐱</div> <!-- Pişik animasiyası -->
-        <div class="message">Every second counts towards success</div> <!-- Mətn -->
+    <div class="loading-container">
+        <div class="loader">⏳</div>
+        <div class="message">Every second counts towards success</div>
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar">0%</div>
+        </div>
     </div>
+
+    <script>
+        let progress = 0;
+        const progressBar = document.getElementById("progressBar");
+        const message = document.querySelector(".message");
+
+        // 3 saniyəlik loading animasiyası (0-100 arasında dolan bar)
+        const interval = setInterval(function() {
+            progress += 2;
+            progressBar.style.width = progress + '%';
+            progressBar.innerText = progress + '%';
+            message.innerText = 'Loading... ' + progress + '%';
+
+            if (progress >= 100) {
+                clearInterval(interval);
+                setTimeout(function() {
+                    window.location.href = 'index.html'; // Bura əsas səhifənizin adını yazın
+                }, 1000); // 1 saniyəlik delay
+            }
+        }, 30); // 30 ms interval ilə hər dəfə 2% artır
+
+    </script>
 </body>
 </html>
