@@ -1,13 +1,19 @@
 {
   "name": "MoneyTime",
   "short_name": "MoneyTime",
-  "start_url": "./",
+  "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#000000",
+  "background_color": "#000000",
+  "theme_color": "#4CAF50",
+  "description": "Earn money by tracking your time!",
   "icons": [
     {
-      "src": "https://raw.githubusercontent.com/Pbl6ka666/Moneytime/main/IMG_0417.jpeg",
+      "src": "https://raw.githubusercontent.com/Pbl6ka666/Moneytime/refs/heads/main/IMG_0417.jpeg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "https://raw.githubusercontent.com/Pbl6ka666/Moneytime/refs/heads/main/IMG_0417.jpeg",
       "sizes": "512x512",
       "type": "image/jpeg"
     }
