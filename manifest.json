@@ -1,14 +1,13 @@
 {
   "name": "MoneyTime",
   "short_name": "MoneyTime",
-  "description": "Bir timer app",
-  "start_url": "/Moneytime/",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#000000",
   "icons": [
     {
-      "src": "https://raw.githubusercontent.com/Pbl6ka666/Moneytime/refs/heads/main/IMG_0417.jpeg",
+      "src": "https://raw.githubusercontent.com/Pbl6ka666/Moneytime/main/IMG_0417.jpeg",
       "sizes": "512x512",
       "type": "image/jpeg"
     }
