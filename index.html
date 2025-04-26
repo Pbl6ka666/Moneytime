@@ -3,217 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Money Time App</title>
-    <link rel="icon" href="https://raw.githubusercontent.com/Pbl6ka666/Moneytime/refs/heads/main/IMG_0417.jpeg" type="image/jpeg">
+    <title>MoneyTime</title>
+    <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
     <style>
-        body, html {
-            height: 100%;
-            margin: 0;
+        body {
             font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #f5f5f5;
-            overflow: hidden;
-        }
-
-        #loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-size: 2rem;
-            flex-direction: column;
             text-align: center;
+            background-color: #f4f4f4;
+            color: #333;
+            background-image: url('https://raw.githubusercontent.com/Pbl6ka666/Moneytime/refs/heads/main/IMG_0417.jpeg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
         }
-
-        #loading-screen p {
-            margin: 20px 0;
+        #loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #000;
+            color: green;
+            font-size: 24px;
         }
-
-        #loading-screen .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid #fff;
-            border-top: 5px solid #4caf50;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        #loading-screen .loading-text {
-            color: #4caf50; /* Green text */
-        }
-
-        #app {
+        #content {
             display: none;
-            text-align: center;
         }
-
-        .button {
+        .hidden {
+            display: none;
+        }
+        .btn {
+            background-color: #4CAF50;
+            color: white;
             padding: 10px 20px;
             margin: 10px;
-            font-size: 16px;
-            cursor: pointer;
-            background-color: #4caf50;
-            color: white;
             border: none;
+            cursor: pointer;
             border-radius: 5px;
         }
-
-        .button:disabled {
-            background-color: grey;
-            cursor: not-allowed;
+        .btn:hover {
+            background-color: #45a049;
         }
-
-        .timer {
-            font-size: 3rem;
+        #timer {
+            font-size: 32px;
             margin-top: 20px;
         }
-
-        .balance {
-            font-size: 2rem;
+        #balance {
+            font-size: 24px;
             margin-top: 20px;
-        }
-
-        #explosion {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            visibility: hidden;
-            font-size: 2rem;
-            color: #ff5733;
-            animation: explode 1s forwards;
-        }
-
-        @keyframes explode {
-            0% { opacity: 0; transform: scale(1); }
-            100% { opacity: 1; transform: scale(3); }
         }
     </style>
 </head>
 <body>
-    <div id="loading-screen">
-        <div class="spinner"></div>
-        <p class="loading-text" id="loading-text">Every second counts towards success</p>
-        <p>Loading...</p>
+    <div id="loading">
+        <div>
+            <div id="loadingText">Every second counts towards success...</div>
+            <div id="spinner">🐱</div>
+        </div>
     </div>
 
-    <div id="app">
-        <h1>Money Time</h1>
-        <div class="timer" id="timer">00:00</div>
-        <div class="balance" id="balance">Balance: 0 AZN</div>
-
-        <div id="explosion">Boom! 🎉</div>
-
-        <button class="button" id="start-btn">Start</button>
-        <button class="button" id="pause-btn" disabled>Pause</button>
-        <button class="button" id="reset-btn" disabled>Reset</button>
-        <button class="button" id="settings-btn">Settings</button>
+    <div id="content">
+        <div id="timer">Timer: 0</div>
+        <div id="balance">Balance: 0.00 AZN</div>
+        <button id="startButton" class="btn">Start</button>
+        <button id="pauseButton" class="btn hidden">Pause</button>
+        <button id="resetButton" class="btn">Reset</button>
+        <button id="settingsButton" class="btn">Settings</button>
     </div>
 
     <script>
-        let timerInterval, currentTime = 0, balance = 0, totalTime = 4 * 3600, isRunning = false;
-        const timerElement = document.getElementById('timer');
-        const balanceElement = document.getElementById('balance');
-        const explosionElement = document.getElementById('explosion');
-        const startButton = document.getElementById('start-btn');
-        const pauseButton = document.getElementById('pause-btn');
-        const resetButton = document.getElementById('reset-btn');
-        const settingsButton = document.getElementById('settings-btn');
-        const loadingScreen = document.getElementById('loading-screen');
-        const app = document.getElementById('app');
-        const loadingText = document.getElementById('loading-text');
-        
-        // Show loading screen for 5 seconds
+        let timer;
+        let isRunning = false;
+        let elapsedTime = 0;
+        let balance = 0;
+        let interval;
+
+        function startTimer() {
+            isRunning = true;
+            interval = setInterval(() => {
+                elapsedTime++;
+                document.getElementById("timer").innerText = `Timer: ${elapsedTime} seconds`;
+                balance = (elapsedTime / 14400) * 10; // 10 AZN for 4 hours
+                document.getElementById("balance").innerText = `Balance: ${balance.toFixed(2)} AZN`;
+
+                // Animations for 1 hour and 4 hours
+                if (elapsedTime === 3600) {
+                    alert("Small Explosion!");
+                }
+
+                if (elapsedTime === 14400) {
+                    alert("Big Explosion!");
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            isRunning = false;
+            clearInterval(interval);
+        }
+
+        function resetTimer() {
+            isRunning = false;
+            elapsedTime = 0;
+            balance = 0;
+            document.getElementById("timer").innerText = `Timer: 0`;
+            document.getElementById("balance").innerText = `Balance: 0.00 AZN`;
+            clearInterval(interval);
+        }
+
+        document.getElementById("startButton").addEventListener("click", () => {
+            startTimer();
+            document.getElementById("startButton").classList.add("hidden");
+            document.getElementById("pauseButton").classList.remove("hidden");
+        });
+
+        document.getElementById("pauseButton").addEventListener("click", () => {
+            pauseTimer();
+            document.getElementById("pauseButton").classList.add("hidden");
+            document.getElementById("startButton").classList.remove("hidden");
+        });
+
+        document.getElementById("resetButton").addEventListener("click", () => {
+            resetTimer();
+        });
+
+        // Loading screen
         setTimeout(() => {
-            loadingScreen.style.display = 'none';
-            app.style.display = 'block';
+            document.getElementById("loading").style.display = "none";
+            document.getElementById("content").style.display = "block";
         }, 5000);
 
-        function formatTime(seconds) {
-            let hours = Math.floor(seconds / 3600);
-            let minutes = Math.floor((seconds % 3600) / 60);
-            let sec = seconds % 60;
-            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+        // PWA offline support
+        if (!navigator.onLine) {
+            alert("You are offline!");
         }
-
-        function updateBalance() {
-            balance = (currentTime / totalTime) * 10; // 10 AZN for 4 hours
-            balanceElement.textContent = `Balance: ${balance.toFixed(2)} AZN`;
-        }
-
-        function handleTimer() {
-            if (isRunning) {
-                currentTime++;
-                if (currentTime <= totalTime) {
-                    timerElement.textContent = formatTime(currentTime);
-                    updateBalance();
-
-                    // Trigger explosion at 1 hour and 4 hours
-                    if (currentTime === 3600) {
-                        explosionElement.style.visibility = 'visible';
-                        setTimeout(() => explosionElement.style.visibility = 'hidden', 1000);
-                    }
-                    if (currentTime === 14400) {
-                        explosionElement.textContent = 'Big Boom! 🎆';
-                        explosionElement.style.visibility = 'visible';
-                        setTimeout(() => explosionElement.style.visibility = 'hidden', 2000);
-                    }
-                } else {
-                    clearInterval(timerInterval);
-                    isRunning = false;
-                    startButton.disabled = false;
-                    pauseButton.disabled = true;
-                    resetButton.disabled = false;
-                    alert('Timer finished! Your balance: ' + balance.toFixed(2) + ' AZN');
-                }
-            }
-        }
-
-        startButton.addEventListener('click', () => {
-            if (!isRunning) {
-                timerInterval = setInterval(handleTimer, 1000);
-                isRunning = true;
-                startButton.disabled = true;
-                pauseButton.disabled = false;
-            }
-        });
-
-        pauseButton.addEventListener('click', () => {
-            clearInterval(timerInterval);
-            isRunning = false;
-            startButton.disabled = false;
-            pauseButton.disabled = true;
-        });
-
-        resetButton.addEventListener('click', () => {
-            clearInterval(timerInterval);
-            currentTime = 0;
-            balance = 0;
-            timerElement.textContent = '00:00';
-            balanceElement.textContent = 'Balance: 0 AZN';
-            startButton.disabled = false;
-            pauseButton.disabled = true;
-            resetButton.disabled = true;
-        });
-
-        settingsButton.addEventListener('click', () => {
-            alert("Settings feature will be added later!");
-        });
-
     </script>
 </body>
 </html>
